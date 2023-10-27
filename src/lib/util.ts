@@ -21,6 +21,10 @@ const util = {
   isDeveloper(interaction: APIInputInteraction | any) {
     return developers.includes(interaction.user?.id as string) || developers.includes(interaction.member?.user.id)
   },
+
+  escape(str: string) {
+    return str.replaceAll("\\u00", "%")
+  },
 }
 
 export default util
