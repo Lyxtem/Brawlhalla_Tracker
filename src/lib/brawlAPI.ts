@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios"
 import ky from "ky"
+import util from "./util"
 
 //=======Clan===========
 export type Clan = {
@@ -67,8 +68,8 @@ export type PlayerRanked = {
   global_rank: number
   region_rank: number
   legends: LegendRanked[]
-  "2v2": The2V2[]
-  rotating_ranked: RankedRotating
+  "2v2"?: The2V2[]
+  rotating_ranked?: RankedRotating
 }
 
 export type The2V2 = {
@@ -126,7 +127,7 @@ export type PlayerStats = {
   kosidekick: number
   kosnowball: number
   legends: LegendStats[]
-  clan: Clan
+  clan?: ClanStats
 }
 
 export type ClanStats = {
@@ -200,7 +201,8 @@ export type Legend = {
 //=======Other===========
 export type Region = "eu" | "us-e" | "sea" | "brz" | "aus" | "us-w" | "jpn" | "sa" | "me"
 export type Ranking = "1v1" | "2v2" | "rotating"
-export type Ranked = Ranked1V1 | Ranked2V2 | RankedRotating
+export type Ranked = (Ranked1V1 | Ranked2V2 | RankedRotating) & { last_active?: Date }
+
 export class BrawlhallaAPI {
   private kyInstance: typeof ky
   constructor(api_key: string) {
@@ -209,14 +211,16 @@ export class BrawlhallaAPI {
     this.kyInstance = ky.create({
       prefixUrl: "https://api.brawlhalla.com",
       searchParams: searchParams,
-      retry: { limit: 5, delay: (attemptCount) => 0.1 * 2 ** (attemptCount - 1) * 1000 },
+      retry: { limit: 5, delay: (attemptCount) => 0.5 * 2 ** (attemptCount - 1) * 1000 },
     })
   }
   public async getLegend(legend: "all" | number = "all") {
-    return this.kyInstance.get(`legend/${legend}`).json<LegendStats[]>()
+    return BrawlhallaAPI.fixBrawlhallaAPIString<LegendStats[]>(await this.kyInstance.get(`legend/${legend}`).text())
   }
   public async getRanking(ranking: Ranking = "1v1", region: Region = "sea", page: number = 1) {
-    return this.kyInstance.get(`/rankings/${ranking}/${region}/${page}`).json<Ranked[]>()
+    return BrawlhallaAPI.fixBrawlhallaAPIString<Ranked[]>(
+      await this.kyInstance.get(`/rankings/${ranking}/${region}/${page}`).text()
+    )
   }
   public async getRankings(
     ranking: Ranking = "1v1",
@@ -243,17 +247,29 @@ export class BrawlhallaAPI {
     }
   }
   public async getPlayerRanked(brawlhalla_id: number) {
-    return this.kyInstance.get(`player/${brawlhalla_id}/ranked`).json<PlayerRanked>()
+    return BrawlhallaAPI.fixBrawlhallaAPIString<PlayerRanked>(
+      await this.kyInstance.get(`player/${brawlhalla_id}/ranked`).text()
+    )
   }
   public async getPlayerStats(brawlhalla_id: number) {
-    return this.kyInstance.get(`player/${brawlhalla_id}/stats`).json<PlayerStats>()
+    return BrawlhallaAPI.fixBrawlhallaAPIString<PlayerStats>(
+      await this.kyInstance.get(`player/${brawlhalla_id}/stats`).text()
+    )
   }
   public async getClan(clan_id: number) {
-    return this.kyInstance.get(`clan/${clan_id}`).json<Clan>()
+    return BrawlhallaAPI.fixBrawlhallaAPIString<Clan>(await this.kyInstance.get(`clan/${clan_id}`).text())
   }
 
+  static fixBrawlhallaAPIString<T>(str: string) {
+    if (str && typeof str == "string") {
+      decodeURIComponent(util.escape(str))
+      return JSON.parse(str) as T
+    }
+  }
   static trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): Ranked[] {
-    const activePlayers: Ranked[] = []
+    if (!oldRankedData || !newRankedData) {
+      return []
+    }
     const oldPlayersSet = new Set(
       oldRankedData.map((player) => {
         if ("brawlhalla_id" in player) {
@@ -263,29 +279,25 @@ export class BrawlhallaAPI {
         }
       })
     )
-
-    activePlayers.push(
-      ...newRankedData.filter((newPlayer) => {
-        const key =
-          "brawlhalla_id" in newPlayer
-            ? String(newPlayer.brawlhalla_id)
-            : `${newPlayer.brawlhalla_id_one}-${newPlayer.brawlhalla_id_two}`
-        return (
-          oldPlayersSet.has(key) &&
-          newPlayer.games >
-            (oldRankedData.find((oldPlayer) => {
-              if ("brawlhalla_id" in oldPlayer) {
-                return String(oldPlayer.brawlhalla_id) === key
-              } else {
-                const [one, two] = key.split("-")
-                return oldPlayer.brawlhalla_id_one === Number(one) && oldPlayer.brawlhalla_id_two === Number(two)
-              }
-            })?.games || 0)
-        )
-      })
-    )
-
-    return activePlayers
+    // return Active players
+    return newRankedData.filter((newPlayer) => {
+      const key =
+        "brawlhalla_id" in newPlayer
+          ? String(newPlayer.brawlhalla_id)
+          : `${newPlayer.brawlhalla_id_one}-${newPlayer.brawlhalla_id_two}`
+      return (
+        oldPlayersSet.has(key) &&
+        newPlayer.games >
+          (oldRankedData.find((oldPlayer) => {
+            if ("brawlhalla_id" in oldPlayer) {
+              return String(oldPlayer.brawlhalla_id) === key
+            } else {
+              const [one, two] = key.split("-")
+              return oldPlayer.brawlhalla_id_one === Number(one) && oldPlayer.brawlhalla_id_two === Number(two)
+            }
+          })?.games || 0)
+      )
+    })
   }
 
   static async gloryFromWins(totalWins: number) {
