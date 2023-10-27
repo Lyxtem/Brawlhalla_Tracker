@@ -200,7 +200,7 @@ export type Legend = {
 //=======Other===========
 export type Region = "eu" | "us-e" | "sea" | "brz" | "aus" | "us-w" | "jpn" | "sa" | "me"
 export type Ranking = "1v1" | "2v2" | "rotating"
-
+export type Ranked = Ranked1V1 | Ranked2V2 | RankedRotating
 export class BrawlhallaAPI {
   private kyInstance: typeof ky
   constructor(api_key: string) {
@@ -209,16 +209,38 @@ export class BrawlhallaAPI {
     this.kyInstance = ky.create({
       prefixUrl: "https://api.brawlhalla.com",
       searchParams: searchParams,
-      retry: { delay: (attemptCount) => 0.1 * 2 ** (attemptCount - 1) * 1000 },
+      retry: { limit: 5, delay: (attemptCount) => 0.1 * 2 ** (attemptCount - 1) * 1000 },
     })
   }
   public async getLegend(legend: "all" | number = "all") {
     return this.kyInstance.get(`legend/${legend}`).json<LegendStats[]>()
   }
   public async getRanking(ranking: Ranking = "1v1", region: Region = "sea", page: number = 1) {
-    return this.kyInstance
-      .get(`/rankings/${ranking}/${region}/${page}`)
-      .json<Ranked1V1[] | Ranked2V2[] | RankedRotating[]>()
+    return this.kyInstance.get(`/rankings/${ranking}/${region}/${page}`).json<Ranked[]>()
+  }
+  public async getRankings(
+    ranking: Ranking = "1v1",
+    region: Region = "sea",
+    fromPage: number,
+    toPage: number
+  ): Promise<Ranked[]> {
+    const pageNumbers = Array.from({ length: toPage - fromPage + 1 }, (_, index) => fromPage + index)
+
+    const fetchPromises = pageNumbers.map((page) => {
+      return this.kyInstance.get(`rankings/${ranking}/${region}/${page}`).json<Ranked[]>()
+    })
+
+    try {
+      const results: any[] = await Promise.all(fetchPromises)
+
+      // Merge the results from all pages into a single array
+      const mergedResults = [].concat(...results)
+
+      return mergedResults
+    } catch (error) {
+      console.error("Error fetching data:", error)
+      throw error
+    }
   }
   public async getPlayerRanked(brawlhalla_id: number) {
     return this.kyInstance.get(`player/${brawlhalla_id}/ranked`).json<PlayerRanked>()
@@ -229,6 +251,43 @@ export class BrawlhallaAPI {
   public async getClan(clan_id: number) {
     return this.kyInstance.get(`clan/${clan_id}`).json<Clan>()
   }
+
+  static trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): Ranked[] {
+    const activePlayers: Ranked[] = []
+    const oldPlayersSet = new Set(
+      oldRankedData.map((player) => {
+        if ("brawlhalla_id" in player) {
+          return String(player.brawlhalla_id)
+        } else {
+          return `${player.brawlhalla_id_one}-${player.brawlhalla_id_two}`
+        }
+      })
+    )
+
+    activePlayers.push(
+      ...newRankedData.filter((newPlayer) => {
+        const key =
+          "brawlhalla_id" in newPlayer
+            ? String(newPlayer.brawlhalla_id)
+            : `${newPlayer.brawlhalla_id_one}-${newPlayer.brawlhalla_id_two}`
+        return (
+          oldPlayersSet.has(key) &&
+          newPlayer.games >
+            (oldRankedData.find((oldPlayer) => {
+              if ("brawlhalla_id" in oldPlayer) {
+                return String(oldPlayer.brawlhalla_id) === key
+              } else {
+                const [one, two] = key.split("-")
+                return oldPlayer.brawlhalla_id_one === Number(one) && oldPlayer.brawlhalla_id_two === Number(two)
+              }
+            })?.games || 0)
+        )
+      })
+    )
+
+    return activePlayers
+  }
+
   static async gloryFromWins(totalWins: number) {
     if (totalWins <= 150) return 20 * totalWins
 
