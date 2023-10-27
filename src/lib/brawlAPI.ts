@@ -1,14 +1,34 @@
 import axios, { AxiosInstance } from "axios"
+import ky from "ky"
+
+export type Legend = {
+  legend_id: number
+  legend_name_key: string
+  bio_name: string
+  bio_aka: string
+  weapon_one: string
+  weapon_two: string
+  strength: string
+  dexterity: string
+  defense: string
+  speed: string
+}
 
 export type Region = "eu" | "us-e" | "sea" | "brz" | "aus" | "us-w" | "jpn" | "sa" | "me"
 
-export default class BrawlhallaAPI {
-  private instanceAxios: AxiosInstance
+export class BrawlhallaAPI {
+  private kyInstance: typeof ky
   constructor(api_key: string) {
-    this.instanceAxios = axios.create({
-      baseURL: "https://api.brawlhalla.com",
-      params: { api_key },
+    const searchParams = new URLSearchParams()
+    searchParams.set("api_key", api_key)
+    this.kyInstance = ky.create({
+      prefixUrl: "https://api.brawlhalla.com",
+      searchParams: searchParams,
+      retry: { delay: (attemptCount) => 0.1 * 2 ** (attemptCount - 1) * 1000 },
     })
+  }
+  public async getLegend(legend: "all" | number = "all") {
+    return this.kyInstance.get(`legend/${legend}`).json<Legend[]>()
   }
   static async gloryFromWins(totalWins: number) {
     if (totalWins <= 150) return 20 * totalWins
@@ -36,3 +56,6 @@ export default class BrawlhallaAPI {
     return Math.floor(retval)
   }
 }
+
+const brawlAPI = new BrawlhallaAPI(process.env.BRAWLHALLA_API_KEY as string)
+export default brawlAPI
