@@ -1,8 +1,9 @@
+import brawlAPI from "@/lib/brawlAPI"
 import { publicProcedure, router } from "./trpc"
 
 export const appRouter = router({
-  test: publicProcedure.query(async () => {
-    return [1, 2, 3]
+  queue: publicProcedure.query(async () => {
+    return  brawlAPI.getLegend()
   }),
 })
 
