@@ -200,6 +200,7 @@ export type Legend = {
 //=======Other===========
 export type Region = "eu" | "us-e" | "sea" | "brz" | "aus" | "us-w" | "jpn" | "sa" | "me"
 export type Ranking = "1v1" | "2v2" | "rotating"
+
 export class BrawlhallaAPI {
   private kyInstance: typeof ky
   constructor(api_key: string) {
@@ -213,6 +214,20 @@ export class BrawlhallaAPI {
   }
   public async getLegend(legend: "all" | number = "all") {
     return this.kyInstance.get(`legend/${legend}`).json<LegendStats[]>()
+  }
+  public async getRanking(ranking: Ranking = "1v1", region: Region = "sea", page: number = 1) {
+    return this.kyInstance
+      .get(`/rankings/${ranking}/${region}/${page}`)
+      .json<Ranked1V1[] | Ranked2V2[] | RankedRotating[]>()
+  }
+  public async getPlayerRanked(brawlhalla_id: number) {
+    return this.kyInstance.get(`player/${brawlhalla_id}/ranked`).json<PlayerRanked>()
+  }
+  public async getPlayerStats(brawlhalla_id: number) {
+    return this.kyInstance.get(`player/${brawlhalla_id}/stats`).json<PlayerStats>()
+  }
+  public async getClan(clan_id: number) {
+    return this.kyInstance.get(`clan/${clan_id}`).json<Clan>()
   }
   static async gloryFromWins(totalWins: number) {
     if (totalWins <= 150) return 20 * totalWins
