@@ -1,24 +1,13 @@
-import fs from "fs"
-import brawlAPI, { BrawlhallaAPI, Ranked } from "@/lib/brawlAPI"
-import util from "@/lib/util"
+import { Ranking, Region } from "@/lib/brawlAPI"
+import { z } from "zod"
 import { publicProcedure, router } from "./trpc"
 
 export const appRouter = router({
-  queue: publicProcedure.query(async () => {
-    const path = `public/dynamic/oldRankedData.json`
-    const newRankedData: Ranked[] = await brawlAPI.getRankings("1v1", "sea", 1, 20)
-
-    let oldRankedData: Ranked[] | undefined
-
-    oldRankedData = util.readFileJson<Ranked[]>(path)
-    if (!oldRankedData) {
-      return []
-    }
-    return BrawlhallaAPI.trackPlayersInRank(newRankedData, oldRankedData)
-  }),
-  test: publicProcedure.query(async () => {
-    return brawlAPI.getLegend()
-  }),
+  queue: publicProcedure
+    .input(z.object({ ranking: z.custom<Ranking>(), region: z.custom<Region>() }))
+    .query(async () => {
+      return [1, 2, 3, 5]
+    }),
 })
 
 export type AppRouter = typeof appRouter
