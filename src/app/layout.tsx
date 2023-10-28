@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import "./globals.css"
-
+import TRPCProvider from "@/app/_trpc/Provider"
 
 export const metadata: Metadata = {
   title: "NextBot — Next.js Discord Bot Template",
@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-       {children}
+        <TRPCProvider>{children}</TRPCProvider>
       </body>
     </html>
   )
