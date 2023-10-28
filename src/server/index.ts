@@ -1,18 +1,19 @@
 import fs from "fs"
 import brawlAPI, { BrawlhallaAPI, Ranked } from "@/lib/brawlAPI"
+import util from "@/lib/util"
 import { publicProcedure, router } from "./trpc"
 
 export const appRouter = router({
   queue: publicProcedure.query(async () => {
-    const pathOldRankedData = `public/oldRankedData.json`
+    const path = `public/dynamic/oldRankedData.json`
     const newRankedData: Ranked[] = await brawlAPI.getRankings("1v1", "sea", 1, 20)
+
     let oldRankedData: Ranked[] | undefined
-    if (!fs.existsSync(pathOldRankedData)) {
-      fs.appendFileSync(`public/oldRankedData.json`, JSON.stringify(newRankedData))
+
+    oldRankedData = util.readFileJson<Ranked[]>(path)
+    if (!oldRankedData) {
       return []
     }
-    oldRankedData = JSON.parse(fs.readFileSync(pathOldRankedData, { encoding: "utf-8" })) as Ranked[]
-    fs.writeFileSync(pathOldRankedData, JSON.stringify(newRankedData))
     return BrawlhallaAPI.trackPlayersInRank(newRankedData, oldRankedData)
   }),
   test: publicProcedure.query(async () => {

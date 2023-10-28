@@ -205,26 +205,32 @@ export type Ranked = (Ranked1V1 | Ranked2V2 | RankedRotating) & { last_active?: 
 
 export class BrawlhallaAPI {
   private kyInstance: typeof ky
+  private api_key: string
   constructor(api_key: string) {
+    this.api_key = api_key
     const searchParams = new URLSearchParams()
     searchParams.set("api_key", api_key)
     this.kyInstance = ky.create({
       prefixUrl: "https://api.brawlhalla.com",
       searchParams: searchParams,
-      retry: { limit: 5, delay: (attemptCount) => 0.5 * 2 ** (attemptCount - 1) * 1000 },
+      retry: { limit: 5, delay: (attemptCount) => 0.3 * 2 ** (attemptCount - 1) * 1000 },
     })
   }
   public async getLegend(legend: "all" | number = "all") {
     return BrawlhallaAPI.fixBrawlhallaAPIString<LegendStats[]>(await this.kyInstance.get(`legend/${legend}`).text())
   }
   public async getRanking(ranking: Ranking = "1v1", region: Region = "sea", page: number = 1, playerName?: string) {
-    const searchParams = new URLSearchParams()
     if (playerName) {
+      const searchParams = new URLSearchParams()
       searchParams.set("name", playerName)
+      searchParams.set("api_key", this.api_key)
+      return BrawlhallaAPI.fixBrawlhallaAPIString<Ranked[]>(
+        await this.kyInstance.get(`rankings/${ranking}/${region}/${page}`, { searchParams }).text()
+      )
     }
 
     return BrawlhallaAPI.fixBrawlhallaAPIString<Ranked[]>(
-      await this.kyInstance.get(`rankings/${ranking}/${region}/${page}`, { searchParams }).text()
+      await this.kyInstance.get(`rankings/${ranking}/${region}/${page}`).text()
     )
   }
   public async getRankings(
@@ -235,21 +241,21 @@ export class BrawlhallaAPI {
   ): Promise<Ranked[]> {
     const pageNumbers = Array.from({ length: toPage - fromPage + 1 }, (_, index) => fromPage + index)
 
-    const fetchPromises = pageNumbers.map((page) => {
-      return this.kyInstance.get(`rankings/${ranking}/${region}/${page}`).json<Ranked[]>()
-    })
+    const results: Ranked[] = []
 
-    try {
-      const results: any[] = await Promise.all(fetchPromises)
-
-      // Merge the results from all pages into a single array
-      const mergedResults = [].concat(...results)
-
-      return mergedResults
-    } catch (error) {
-      console.error("Error fetching data:", error)
-      throw error
+    for (const page of pageNumbers) {
+      try {
+        const rankedData = await this.getRanking(ranking, region, page)
+        if (rankedData) {
+          results.push(...rankedData)
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error)
+        throw error
+      }
     }
+
+    return results
   }
   public async getPlayerRanked(brawlhalla_id: number) {
     return BrawlhallaAPI.fixBrawlhallaAPIString<PlayerRanked>(
@@ -267,9 +273,11 @@ export class BrawlhallaAPI {
 
   static fixBrawlhallaAPIString<T>(str: string) {
     if (str && typeof str == "string") {
-      decodeURIComponent(util.escape(str))
-      return JSON.parse(str) as T
+      try {
+        str = decodeURIComponent(util.escape(str))
+      } catch (error) {}
     }
+    return JSON.parse(str) as T
   }
   static trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): Ranked[] {
     if (!oldRankedData || !newRankedData) {
