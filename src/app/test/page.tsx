@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { trpc } from "../_trpc/client"
+import prisma from "../../../prisma/client"
 
 export interface ITestProps {}
 
