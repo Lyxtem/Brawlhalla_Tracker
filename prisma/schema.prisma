@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+model Brawler {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  brawlhallaId     Int           @unique @map("brawlhalla_id")
+  playingTracker   DateTime[]
+  discordLinked    String[]      @unique
+  discordFollowers String[]      @unique
+  lastUpdate       DateTime      @updatedAt
+  BrawlerAlias     BrawlerAlias?
+}
+
+model BrawlerAlias {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  brawlerID    String   @unique @db.ObjectId
+  brawler      Brawler  @relation(fields: [brawlerID], references: [id])
+  mainAlias    String
+  otherAliases String[] @unique
+}

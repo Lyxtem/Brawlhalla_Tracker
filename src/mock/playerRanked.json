@@ -1,0 +1,299 @@
+{
+  "name": "Trick Or Moni Treat",
+  "brawlhalla_id": 104002853,
+  "rating": 2334,
+  "peak_rating": 2334,
+  "tier": "Diamond",
+  "wins": 26,
+  "games": 31,
+  "region": "US-E",
+  "global_rank": 0,
+  "region_rank": 0,
+  "legends": [
+    {
+      "legend_id": 3,
+      "legend_name_key": "bodvar",
+      "rating": 892,
+      "peak_rating": 0,
+      "tier": "Tin 5",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 5,
+      "legend_name_key": "orion",
+      "rating": 1600,
+      "peak_rating": 0,
+      "tier": "Gold 4",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 6,
+      "legend_name_key": "lord vraxx",
+      "rating": 1338,
+      "peak_rating": 0,
+      "tier": "Silver 5",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 8,
+      "legend_name_key": "queen nai",
+      "rating": 894,
+      "peak_rating": 0,
+      "tier": "Tin 5",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 26,
+      "legend_name_key": "jhala",
+      "rating": 818,
+      "peak_rating": 0,
+      "tier": "Tin 3",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 35,
+      "legend_name_key": "mordex",
+      "rating": 921,
+      "peak_rating": 0,
+      "tier": "Bronze 1",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 22,
+      "legend_name_key": "ulgrim",
+      "rating": 1310,
+      "peak_rating": 1310,
+      "tier": "Silver 4",
+      "wins": 3,
+      "games": 4
+    },
+    {
+      "legend_id": 33,
+      "legend_name_key": "mirage",
+      "rating": 946,
+      "peak_rating": 0,
+      "tier": "Bronze 1",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 29,
+      "legend_name_key": "wu shang",
+      "rating": 1255,
+      "peak_rating": 0,
+      "tier": "Silver 3",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 16,
+      "legend_name_key": "teros",
+      "rating": 788,
+      "peak_rating": 0,
+      "tier": "Tin 2",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 27,
+      "legend_name_key": "loki",
+      "rating": 789,
+      "peak_rating": 0,
+      "tier": "Tin 2",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 20,
+      "legend_name_key": "asuri",
+      "rating": 942,
+      "peak_rating": 0,
+      "tier": "Bronze 1",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 41,
+      "legend_name_key": "isaiah",
+      "rating": 808,
+      "peak_rating": 0,
+      "tier": "Tin 3",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 55,
+      "legend_name_key": "mako",
+      "rating": 989,
+      "peak_rating": 0,
+      "tier": "Bronze 2",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 42,
+      "legend_name_key": "kaya",
+      "rating": 849,
+      "peak_rating": 0,
+      "tier": "Tin 4",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 59,
+      "legend_name_key": "arcadia",
+      "rating": 845,
+      "peak_rating": 0,
+      "tier": "Tin 4",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 62,
+      "legend_name_key": "thea",
+      "rating": 796,
+      "peak_rating": 0,
+      "tier": "Tin 3",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 37,
+      "legend_name_key": "artemis",
+      "rating": 796,
+      "peak_rating": 0,
+      "tier": "Tin 3",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 46,
+      "legend_name_key": "rayman",
+      "rating": 794,
+      "peak_rating": 0,
+      "tier": "Tin 2",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 54,
+      "legend_name_key": "jaeyun",
+      "rating": 2273,
+      "peak_rating": 2273,
+      "tier": "Diamond",
+      "wins": 23,
+      "games": 27
+    },
+    {
+      "legend_id": 38,
+      "legend_name_key": "caspian",
+      "rating": 1216,
+      "peak_rating": 0,
+      "tier": "Silver 2",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 40,
+      "legend_name_key": "xull",
+      "rating": 1093,
+      "peak_rating": 0,
+      "tier": "Bronze 5",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 52,
+      "legend_name_key": "volkov",
+      "rating": 750,
+      "peak_rating": 0,
+      "tier": "Tin 1",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 45,
+      "legend_name_key": "zariel",
+      "rating": 788,
+      "peak_rating": 0,
+      "tier": "Tin 2",
+      "wins": 0,
+      "games": 0
+    },
+    {
+      "legend_id": 56,
+      "legend_name_key": "magyar",
+      "rating": 1240,
+      "peak_rating": 0,
+      "tier": "Silver 3",
+      "wins": 0,
+      "games": 0
+    }
+  ],
+  "2v2": [
+    {
+      "brawlhalla_id_one": 100518062,
+      "brawlhalla_id_two": 104002853,
+      "rating": 1237,
+      "peak_rating": 1259,
+      "tier": "Silver 3",
+      "wins": 5,
+      "games": 9,
+      "teamname": "<3+Trick Or Moni Treat",
+      "region": 2,
+      "global_rank": 0
+    },
+    {
+      "brawlhalla_id_one": 42527125,
+      "brawlhalla_id_two": 104002853,
+      "rating": 1277,
+      "peak_rating": 1277,
+      "tier": "Silver 3",
+      "wins": 5,
+      "games": 6,
+      "teamname": "guy with glasses+Trick Or Moni Treat",
+      "region": 2,
+      "global_rank": 0
+    },
+    {
+      "brawlhalla_id_one": 31848188,
+      "brawlhalla_id_two": 104002853,
+      "rating": 1410,
+      "peak_rating": 1462,
+      "tier": "Gold 1",
+      "wins": 0,
+      "games": 3,
+      "teamname": "Zetai <3+Trick Or Moni Treat",
+      "region": 2,
+      "global_rank": 0
+    },
+    {
+      "brawlhalla_id_one": 96730977,
+      "brawlhalla_id_two": 104002853,
+      "rating": 2289,
+      "peak_rating": 2364,
+      "tier": "Diamond",
+      "wins": 76,
+      "games": 121,
+      "teamname": "SweatyMeat+Trick Or Moni Treat",
+      "region": 2,
+      "global_rank": 0
+    }
+  ],
+  "rotating_ranked": {
+    "name": "Trick Or Moni Treat",
+    "brawlhalla_id": 104002853,
+    "rating": 1774,
+    "peak_rating": 1774,
+    "tier": "Platinum 2",
+    "wins": 80,
+    "games": 80,
+    "region": "US-E"
+  }
+}

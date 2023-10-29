@@ -1,0 +1,155 @@
+{
+  "clan_id": 1,
+  "clan_name": "Blue Mammoth Games",
+  "clan_create_date": 1464206400,
+  "clan_xp": "2946115",
+  "clan": [
+    {
+      "brawlhalla_id": 3,
+      "name": "Chill Penguin X",
+      "rank": "Leader",
+      "join_date": 1464206400,
+      "xp": 216923
+    },
+    {
+      "brawlhalla_id": 2,
+      "name": "bmgtherealfirstdan",
+      "rank": "Officer",
+      "join_date": 1464221047,
+      "xp": 45119
+    },
+    {
+      "brawlhalla_id": 1,
+      "name": "Tyveris",
+      "rank": "Officer",
+      "join_date": 1464221051,
+      "xp": 8611
+    },
+    {
+      "brawlhalla_id": 4,
+      "name": "thousandhundred",
+      "rank": "Officer",
+      "join_date": 1464221052,
+      "xp": 2431
+    },
+    {
+      "brawlhalla_id": 10,
+      "name": "Dinohedron",
+      "rank": "Officer",
+      "join_date": 1464221076,
+      "xp": 26133
+    },
+    {
+      "brawlhalla_id": 1020,
+      "name": "Redilas",
+      "rank": "Officer",
+      "join_date": 1464221520,
+      "xp": 66119
+    },
+    {
+      "brawlhalla_id": 9,
+      "name": "[BMG] Dolchay",
+      "rank": "Officer",
+      "join_date": 1464223317,
+      "xp": 4252
+    },
+    {
+      "brawlhalla_id": 12,
+      "name": "[BMG] d3rail3d",
+      "rank": "Officer",
+      "join_date": 1464274780,
+      "xp": 28710
+    },
+    {
+      "brawlhalla_id": 1205677,
+      "name": "MannyFav",
+      "rank": "Officer",
+      "join_date": 1464275941,
+      "xp": 463229
+    },
+    {
+      "brawlhalla_id": 6,
+      "name": "Oddling",
+      "rank": "Officer",
+      "join_date": 1464275994,
+      "xp": 53527
+    },
+    {
+      "brawlhalla_id": 58403,
+      "name": "TWK",
+      "rank": "Officer",
+      "join_date": 1468004212,
+      "xp": 13625
+    },
+    {
+      "brawlhalla_id": 8070,
+      "name": "Raidhyn",
+      "rank": "Officer",
+      "join_date": 1469040724,
+      "xp": 70180
+    },
+    {
+      "brawlhalla_id": 7,
+      "name": "ded2sin1",
+      "rank": "Officer",
+      "join_date": 1477523746,
+      "xp": 13426
+    },
+    {
+      "brawlhalla_id": 3756004,
+      "name": "jwynder",
+      "rank": "Officer",
+      "join_date": 1478891887,
+      "xp": 49111
+    },
+    {
+      "brawlhalla_id": 42148,
+      "name": "sloshula",
+      "rank": "Member",
+      "join_date": 1500412909,
+      "xp": 362424
+    },
+    {
+      "brawlhalla_id": 3759575,
+      "name": "Blue Mammoth James",
+      "rank": "Officer",
+      "join_date": 1509040843,
+      "xp": 732245
+    },
+    {
+      "brawlhalla_id": 4725998,
+      "name": "ZombieDogDoes",
+      "rank": "Member",
+      "join_date": 1536257867,
+      "xp": 17130
+    },
+    {
+      "brawlhalla_id": 9308576,
+      "name": "[BMG] Surus",
+      "rank": "Officer",
+      "join_date": 1546989654,
+      "xp": 321289
+    },
+    {
+      "brawlhalla_id": 290811,
+      "name": "Tek",
+      "rank": "Officer",
+      "join_date": 1558130513,
+      "xp": 87067
+    },
+    {
+      "brawlhalla_id": 400,
+      "name": "remix2112",
+      "rank": "Recruit",
+      "join_date": 1615571394,
+      "xp": 11244
+    },
+    {
+      "brawlhalla_id": 62544189,
+      "name": "picopup",
+      "rank": "Recruit",
+      "join_date": 1619032169,
+      "xp": 34025
+    }
+  ]
+}

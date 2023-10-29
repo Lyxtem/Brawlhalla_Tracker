@@ -16,7 +16,7 @@ import path from "path"
 import { CustomAPIApplicationCommand } from "@/types"
 import dotenv from "dotenv"
 
-dotenv.config({ path: ".env.local" })
+dotenv.config({ path: ".env" })
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN
 const DISCORD_APP_ID = process.env.DISCORD_APP_ID
 if (!DISCORD_BOT_TOKEN) {
