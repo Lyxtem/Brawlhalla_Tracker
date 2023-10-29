@@ -199,7 +199,7 @@ export type Legend = {
   speed: string
 }
 //=======Other===========
-export type Region = "eu" | "us-e" | "sea" | "brz" | "aus" | "us-w" | "jpn" | "sa" | "me"
+export type Region = "eu" | "us-e" | "sea" | "brz" | "aus" | "us-w" | "jpn" | "sa" | "me" | "all"
 export type Ranking = "1v1" | "2v2" | "rotating"
 export type Ranked = (Ranked1V1 | Ranked2V2 | RankedRotating) & { last_active?: Date }
 
@@ -213,19 +213,21 @@ export class BrawlhallaAPI {
     this.kyInstance = ky.create({
       prefixUrl: "https://api.brawlhalla.com",
       searchParams: searchParams,
-      retry: { limit: 5, delay: (attemptCount) => 0.3 * 2 ** (attemptCount - 1) * 1000 },
+      retry: { limit: 10, delay: (attemptCount) => 0.3 * 2 ** (attemptCount - 1) * 1000 },
     })
   }
   public async getLegend(legend: "all" | number = "all") {
     return BrawlhallaAPI.fixBrawlhallaAPIString<LegendStats[]>(await this.kyInstance.get(`legend/${legend}`).text())
   }
   public async getRanking(ranking: Ranking = "1v1", region: Region = "sea", page: number = 1, playerName?: string) {
+    console.log("🚀 ~ file: brawlAPI.ts:223 ~ BrawlhallaAPI ~ getRanking ~ page:", page)
     if (playerName) {
       const searchParams = new URLSearchParams()
+      console.log("🚀 ~ file: brawlAPI.ts:226 ~ BrawlhallaAPI ~ getRanking ~ searchParams:", searchParams)
       searchParams.set("name", playerName)
       searchParams.set("api_key", this.api_key)
       return BrawlhallaAPI.fixBrawlhallaAPIString<Ranked[]>(
-        await this.kyInstance.get(`rankings/${ranking}/${region}/${page}`, { searchParams }).text()
+        await ky.get(`rankings/${ranking}/${region}/${page}`, { searchParams }).text()
       )
     }
 
@@ -233,13 +235,9 @@ export class BrawlhallaAPI {
       await this.kyInstance.get(`rankings/${ranking}/${region}/${page}`).text()
     )
   }
-  public async getRankings(
-    ranking: Ranking = "1v1",
-    region: Region = "sea",
-    fromPage: number,
-    toPage: number
-  ): Promise<Ranked[]> {
+  public async getRankings(ranking: Ranking = "1v1", region: Region = "sea", fromPage: number, toPage: number) {
     const pageNumbers = Array.from({ length: toPage - fromPage + 1 }, (_, index) => fromPage + index)
+    console.log("🚀 ~ file: brawlAPI.ts:240 ~ BrawlhallaAPI ~ getRankings ~ pageNumbers:", pageNumbers)
 
     const results: Ranked[] = []
 
@@ -278,39 +276,6 @@ export class BrawlhallaAPI {
       } catch (error) {}
     }
     return JSON.parse(str) as T
-  }
-  static trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): Ranked[] {
-    if (!oldRankedData || !newRankedData) {
-      return []
-    }
-    const oldPlayersSet = new Set(
-      oldRankedData.map((player) => {
-        if ("brawlhalla_id" in player) {
-          return String(player.brawlhalla_id)
-        } else {
-          return `${player.brawlhalla_id_one}-${player.brawlhalla_id_two}`
-        }
-      })
-    )
-    // return Active players
-    return newRankedData.filter((newPlayer) => {
-      const key =
-        "brawlhalla_id" in newPlayer
-          ? String(newPlayer.brawlhalla_id)
-          : `${newPlayer.brawlhalla_id_one}-${newPlayer.brawlhalla_id_two}`
-      return (
-        oldPlayersSet.has(key) &&
-        newPlayer.games >
-          (oldRankedData.find((oldPlayer) => {
-            if ("brawlhalla_id" in oldPlayer) {
-              return String(oldPlayer.brawlhalla_id) === key
-            } else {
-              const [one, two] = key.split("-")
-              return oldPlayer.brawlhalla_id_one === Number(one) && oldPlayer.brawlhalla_id_two === Number(two)
-            }
-          })?.games || 0)
-      )
-    })
   }
 
   static async gloryFromWins(totalWins: number) {
