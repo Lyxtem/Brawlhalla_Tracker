@@ -208,38 +208,41 @@ export class BrawlhallaAPI {
   private api_key: string
   constructor(api_key: string) {
     this.api_key = api_key
-    const searchParams = new URLSearchParams()
-    searchParams.set("api_key", api_key)
     this.kyInstance = ky.create({
       prefixUrl: "https://api.brawlhalla.com",
-      searchParams: searchParams,
       retry: {
-        limit: 10,
+        limit: 40,
         delay: (attemptCount) => {
           console.log("🚀 ~ file: brawlAPI.ts:219 ~ BrawlhallaAPI ~ constructor ~ attemptCount:", attemptCount)
-          return 300 * attemptCount
+          return 300
         },
       },
     })
   }
-
+  public async getBhAPI<T>(path: string, params?: any) {
+    const searchParams = new URLSearchParams()
+    searchParams.set("api_key", this.api_key)
+    if (params) {
+      for (const key of Object.keys(params)) {
+        searchParams.set(key, params[key])
+      }
+    }
+    console.time(`fetch ${path}`)
+    const data = await this.kyInstance.get(path, { searchParams }).text()
+    console.timeEnd(`fetch ${path}`)
+    console.time("clean data")
+    const clean = BrawlhallaAPI.cleanString<T>(data)
+    return clean
+  }
   public async getLegend(legend: "all" | number = "all") {
-    return BrawlhallaAPI.fixBrawlhallaAPIString<LegendStats[]>(await this.kyInstance.get(`legend/${legend}`).text())
+    return await this.getBhAPI<LegendStats[]>(`legend/${legend}`)
   }
   public async getRanking(ranking: Ranking = "1v1", region: Region = "sea", page: number = 1, playerName?: string) {
-    console.log("🚀 ~ file: brawlAPI.ts:229 ~ BrawlhallaAPI ~ getRanking ~ ranking:", ranking, region, page)
     if (playerName) {
-      const searchParams = new URLSearchParams()
-      searchParams.set("name", playerName)
-      searchParams.set("api_key", this.api_key)
-      return BrawlhallaAPI.fixBrawlhallaAPIString<Ranked[]>(
-        await ky.get(`rankings/${ranking}/${region}/${page}`, { searchParams }).text()
-      )
+      return await this.getBhAPI<Ranked[]>(`rankings/${ranking}/${region}/${page}`, { name: playerName })
     }
 
-    return BrawlhallaAPI.fixBrawlhallaAPIString<Ranked[]>(
-      await this.kyInstance.get(`rankings/${ranking}/${region}/${page}`).text()
-    )
+    return await this.getBhAPI<Ranked[]>(`rankings/${ranking}/${region}/${page}`)
   }
   public async getRankings(ranking: Ranking = "1v1", region: Region = "sea", fromPage: number, toPage: number) {
     const pageNumbers = Array.from({ length: toPage - fromPage + 1 }, (_, index) => fromPage + index)
@@ -260,20 +263,16 @@ export class BrawlhallaAPI {
     }
   }
   public async getPlayerRanked(brawlhalla_id: number) {
-    return BrawlhallaAPI.fixBrawlhallaAPIString<PlayerRanked>(
-      await this.kyInstance.get(`player/${brawlhalla_id}/ranked`).text()
-    )
+    return await this.getBhAPI<PlayerRanked>(`player/${brawlhalla_id}/ranked`)
   }
   public async getPlayerStats(brawlhalla_id: number) {
-    return BrawlhallaAPI.fixBrawlhallaAPIString<PlayerStats>(
-      await this.kyInstance.get(`player/${brawlhalla_id}/stats`).text()
-    )
+    return await this.getBhAPI<PlayerStats>(`player/${brawlhalla_id}/stats`)
   }
   public async getClan(clan_id: number) {
-    return BrawlhallaAPI.fixBrawlhallaAPIString<Clan>(await this.kyInstance.get(`clan/${clan_id}`).text())
+    return await this.getBhAPI<Clan>(`clan/${clan_id}`)
   }
 
-  static fixBrawlhallaAPIString<T>(str: string) {
+  static cleanString<T>(str: string) {
     if (str && typeof str == "string") {
       try {
         str = decodeURIComponent(util.escape(str))

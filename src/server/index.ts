@@ -1,3 +1,4 @@
+import { setTimeout } from "timers/promises"
 import brawlAPI, { Ranked, Ranking, Region } from "@/lib/brawlAPI"
 import brawlQueueWorker from "@/lib/brawlQueueWorker"
 import axios from "axios"
@@ -17,7 +18,12 @@ export const appRouter = router({
       return await brawlQueueWorker.updateQueue(ranking, region, pageNum)
     }),
   test: publicProcedure.query(async () => {
-    return (await axios.get("https://api.brawlhalla.com/player/54205093/stats/?api_key=5OYDW48WZT3SMOY8HZHB")).data
+    const arr: any[] = []
+    for (let i = 1; i <= 20; i++) {
+      arr.push(await brawlAPI.getRanking("1v1", "sea", i))
+      await setTimeout(130)
+    }
+    return arr.flat()
   }),
   prisma: publicProcedure.query(async () => {
     return await prisma.brawler.create({ data: { brawlhallaId: 1234 } })
