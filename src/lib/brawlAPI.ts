@@ -213,17 +213,23 @@ export class BrawlhallaAPI {
     this.kyInstance = ky.create({
       prefixUrl: "https://api.brawlhalla.com",
       searchParams: searchParams,
-      retry: { limit: 10, delay: (attemptCount) => 0.3 * 2 ** (attemptCount - 1) * 1000 },
+      retry: {
+        limit: 10,
+        delay: (attemptCount) => {
+          console.log("🚀 ~ file: brawlAPI.ts:219 ~ BrawlhallaAPI ~ constructor ~ attemptCount:", attemptCount)
+          return 300 * attemptCount
+        },
+      },
     })
   }
+
   public async getLegend(legend: "all" | number = "all") {
     return BrawlhallaAPI.fixBrawlhallaAPIString<LegendStats[]>(await this.kyInstance.get(`legend/${legend}`).text())
   }
   public async getRanking(ranking: Ranking = "1v1", region: Region = "sea", page: number = 1, playerName?: string) {
-    console.log("🚀 ~ file: brawlAPI.ts:223 ~ BrawlhallaAPI ~ getRanking ~ page:", page)
+    console.log("🚀 ~ file: brawlAPI.ts:229 ~ BrawlhallaAPI ~ getRanking ~ ranking:", ranking, region, page)
     if (playerName) {
       const searchParams = new URLSearchParams()
-      console.log("🚀 ~ file: brawlAPI.ts:226 ~ BrawlhallaAPI ~ getRanking ~ searchParams:", searchParams)
       searchParams.set("name", playerName)
       searchParams.set("api_key", this.api_key)
       return BrawlhallaAPI.fixBrawlhallaAPIString<Ranked[]>(
@@ -237,23 +243,21 @@ export class BrawlhallaAPI {
   }
   public async getRankings(ranking: Ranking = "1v1", region: Region = "sea", fromPage: number, toPage: number) {
     const pageNumbers = Array.from({ length: toPage - fromPage + 1 }, (_, index) => fromPage + index)
-    console.log("🚀 ~ file: brawlAPI.ts:240 ~ BrawlhallaAPI ~ getRankings ~ pageNumbers:", pageNumbers)
 
-    const results: Ranked[] = []
+    // Use Promise.all to send multiple concurrent requests
+    const promises = pageNumbers.map((page) => this.getRanking(ranking, region, page))
 
-    for (const page of pageNumbers) {
-      try {
-        const rankedData = await this.getRanking(ranking, region, page)
-        if (rankedData) {
-          results.push(...rankedData)
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error)
-        throw error
-      }
+    try {
+      const rankedDataArrays = await Promise.all(promises)
+
+      // Flatten the arrays of ranked data into a single array
+      const results: Ranked[] = rankedDataArrays.flat()
+
+      return results
+    } catch (error) {
+      console.error("Error fetching data:", error)
+      throw error
     }
-
-    return results
   }
   public async getPlayerRanked(brawlhalla_id: number) {
     return BrawlhallaAPI.fixBrawlhallaAPIString<PlayerRanked>(

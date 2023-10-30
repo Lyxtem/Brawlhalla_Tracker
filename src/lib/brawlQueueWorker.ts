@@ -57,15 +57,18 @@ export class BrawlQueueWorker {
   }
 
   public async updateQueue(ranking: Ranking, region: Region, pageNum: number) {
-    console.log("🚀 ~ file: brawlQueueWorker.ts:60 ~ BrawlQueueWorker ~ updateQueue ~ updateQueue:")
+    console.time("getRankings")
     const newRankedData = await this.brawlAPI.getRankings(ranking, region, 1, pageNum)
-    console.log("🚀 ~ file: brawlQueueWorker.ts:61 ~ BrawlQueueWorker ~ updateQueue ~ newRankedData:", newRankedData)
+    console.timeEnd("getRankings")
+
     if (!newRankedData) return []
+
     const oldRankedData = this.getOldData(ranking, region)
+
     this.setOldData(ranking, region, newRankedData)
 
     const activePlayers = this.trackPlayersInRank(newRankedData, oldRankedData)
-    console.log("🚀 ~ file: brawlQueueWorker.ts:67 ~ BrawlQueueWorker ~ updateQueue ~ activePlayers:", activePlayers)
+
     if (activePlayers) {
       const oldActivePlayers = this.getActivePlayers(ranking, region)
 
@@ -75,6 +78,7 @@ export class BrawlQueueWorker {
       }
       const mergeActivePlayers = this.mergeRankedData(oldActivePlayers, activePlayers)
       this.setActivePlayers(ranking, region, mergeActivePlayers)
+      return mergeActivePlayers
     }
 
     return activePlayers
