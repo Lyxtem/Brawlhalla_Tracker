@@ -1,3 +1,4 @@
+import { setTimeout } from "timers/promises"
 import axios, { AxiosInstance } from "axios"
 import ky from "ky"
 import util from "./util"
@@ -213,7 +214,6 @@ export class BrawlhallaAPI {
       retry: {
         limit: 40,
         delay: (attemptCount) => {
-          console.log("🚀 ~ file: brawlAPI.ts:219 ~ BrawlhallaAPI ~ constructor ~ attemptCount:", attemptCount)
           return 300
         },
       },
@@ -230,9 +230,8 @@ export class BrawlhallaAPI {
     console.time(`fetch ${path}`)
     const data = await this.kyInstance.get(path, { searchParams }).text()
     console.timeEnd(`fetch ${path}`)
-    console.time("clean data")
-    const clean = BrawlhallaAPI.cleanString<T>(data)
-    return clean
+
+    return BrawlhallaAPI.cleanString<T>(data)
   }
   public async getLegend(legend: "all" | number = "all") {
     return await this.getBhAPI<LegendStats[]>(`legend/${legend}`)
@@ -245,18 +244,13 @@ export class BrawlhallaAPI {
     return await this.getBhAPI<Ranked[]>(`rankings/${ranking}/${region}/${page}`)
   }
   public async getRankings(ranking: Ranking = "1v1", region: Region = "sea", fromPage: number, toPage: number) {
-    const pageNumbers = Array.from({ length: toPage - fromPage + 1 }, (_, index) => fromPage + index)
-
-    // Use Promise.all to send multiple concurrent requests
-    const promises = pageNumbers.map((page) => this.getRanking(ranking, region, page))
-
     try {
-      const rankedDataArrays = await Promise.all(promises)
-
-      // Flatten the arrays of ranked data into a single array
-      const results: Ranked[] = rankedDataArrays.flat()
-
-      return results
+      const arr: any[] = []
+      for (let i = fromPage; i <= toPage; i++) {
+        arr.push(await brawlAPI.getRanking(ranking, region, i))
+        await setTimeout(130)
+      }
+      return arr.flat() as Ranked[]
     } catch (error) {
       console.error("Error fetching data:", error)
       throw error

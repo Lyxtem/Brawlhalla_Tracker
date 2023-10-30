@@ -19,7 +19,7 @@ export const appRouter = router({
     }),
   test: publicProcedure.query(async () => {
     const arr: any[] = []
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 1; i <= 10; i++) {
       arr.push(await brawlAPI.getRanking("1v1", "sea", i))
       await setTimeout(130)
     }
@@ -31,3 +31,4 @@ export const appRouter = router({
 })
 
 export type AppRouter = typeof appRouter
+        
