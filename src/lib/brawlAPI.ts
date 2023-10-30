@@ -231,7 +231,7 @@ export class BrawlhallaAPI {
     const data = await this.kyInstance.get(path, { searchParams }).text()
     console.timeEnd(`fetch ${path}`)
 
-    return BrawlhallaAPI.cleanString<T>(data)
+    return BrawlhallaAPI.cleanString<T>(data) 
   }
   public async getLegend(legend: "all" | number = "all") {
     return await this.getBhAPI<LegendStats[]>(`legend/${legend}`)

@@ -2,6 +2,9 @@ import fs from "fs"
 import path from "path"
 import brawlAPI, { BrawlhallaAPI, Ranked, Ranking, Region } from "./brawlAPI"
 
+export type QueueRanked = {
+  last_active: Date
+} & Ranked
 export class BrawlQueueWorker {
   private brawlAPI: BrawlhallaAPI
 
@@ -49,11 +52,11 @@ export class BrawlQueueWorker {
   public getOldData(ranking: Ranking, region: Region) {
     return this.readData<Ranked[]>(this.pathOldData + this.getDataNameFormat(ranking, region)) || []
   }
-  public setActivePlayers(ranking: Ranking, region: Region, data: Ranked[]) {
+  public setActivePlayers(ranking: Ranking, region: Region, data: QueueRanked[]) {
     return this.writeData(this.pathActiveData + this.getDataNameFormat(ranking, region), data)
   }
   public getActivePlayers(ranking: Ranking, region: Region) {
-    return this.readData<Ranked[]>(this.pathActiveData + this.getDataNameFormat(ranking, region)) || []
+    return this.readData<QueueRanked[]>(this.pathActiveData + this.getDataNameFormat(ranking, region)) || []
   }
 
   public async updateQueue(ranking: Ranking, region: Region, pageNum: number) {
@@ -83,12 +86,12 @@ export class BrawlQueueWorker {
 
     return activePlayers
   }
-  public mergeRankedData(oldData: Ranked[], newData: Ranked[]): Ranked[] {
+  public mergeRankedData(oldData: QueueRanked[], newData: QueueRanked[]) {
     if (!oldData || !newData) {
       return []
     }
 
-    const combinedData: Ranked[] = [...oldData]
+    const combinedData: QueueRanked[] = [...oldData]
 
     for (const newPlayer of newData) {
       const key =
@@ -111,7 +114,7 @@ export class BrawlQueueWorker {
 
     return combinedData
   }
-  public trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): Ranked[] {
+  public trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): QueueRanked[] {
     if (!oldRankedData || !newRankedData) {
       return []
     }
@@ -125,7 +128,7 @@ export class BrawlQueueWorker {
       })
     )
     // return Active players
-    return newRankedData.filter((newPlayer) => {
+    const activePlayers: any[] = newRankedData.filter((newPlayer) => {
       const key =
         "brawlhalla_id" in newPlayer
           ? String(newPlayer.brawlhalla_id)
@@ -142,7 +145,9 @@ export class BrawlQueueWorker {
             }
           })?.games || 0)
       )
-    })
+    }) as QueueRanked[]
+
+    return activePlayers.map((x) => ({ ...x, last_active: Date.now() })) as QueueRanked[]
   }
 }
 
