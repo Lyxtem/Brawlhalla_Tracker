@@ -9,7 +9,7 @@ export class BrawlQueueWorker {
   public pathActiveData: string
   constructor(brawlAPI: BrawlhallaAPI, pathData: string) {
     this.brawlAPI = brawlAPI
-
+    pathData = path.join(process.cwd(), pathData)
     this.pathOldData = pathData + "queue/"
     this.pathActiveData = pathData + "active/"
     this.init()
