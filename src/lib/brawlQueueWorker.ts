@@ -1,10 +1,7 @@
 import fs from "fs"
 import path from "path"
-import brawlAPI, { BrawlhallaAPI, Ranked, Ranking, Region } from "./brawlAPI"
+import brawlAPI, { BrawlhallaAPI, Ranked, Ranked2V2, Ranking, Region } from "./brawlAPI"
 
-export type QueueRanked = {
-  last_active: Date
-} & Ranked
 export class BrawlQueueWorker {
   private brawlAPI: BrawlhallaAPI
 
@@ -52,11 +49,11 @@ export class BrawlQueueWorker {
   public getOldData(ranking: Ranking, region: Region) {
     return this.readData<Ranked[]>(this.pathOldData + this.getDataNameFormat(ranking, region)) || []
   }
-  public setActivePlayers(ranking: Ranking, region: Region, data: QueueRanked[]) {
+  public setActivePlayers(ranking: Ranking, region: Region, data: Ranked[]) {
     return this.writeData(this.pathActiveData + this.getDataNameFormat(ranking, region), data)
   }
   public getActivePlayers(ranking: Ranking, region: Region) {
-    return this.readData<QueueRanked[]>(this.pathActiveData + this.getDataNameFormat(ranking, region)) || []
+    return this.readData<Ranked[]>(this.pathActiveData + this.getDataNameFormat(ranking, region)) || []
   }
 
   public async updateQueue(ranking: Ranking, region: Region, pageNum: number) {
@@ -86,12 +83,12 @@ export class BrawlQueueWorker {
 
     return activePlayers
   }
-  public mergeRankedData(oldData: QueueRanked[], newData: QueueRanked[]) {
+  public mergeRankedData(oldData: Ranked[], newData: Ranked[]) {
     if (!oldData || !newData) {
       return []
     }
 
-    const combinedData: QueueRanked[] = [...oldData]
+    const combinedData: Ranked[] = [...oldData]
 
     for (const newPlayer of newData) {
       const key =
@@ -114,7 +111,7 @@ export class BrawlQueueWorker {
 
     return combinedData
   }
-  public trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): QueueRanked[] {
+  public trackPlayersInRank(newRankedData: Ranked[], oldRankedData: Ranked[]): Ranked[] {
     if (!oldRankedData || !newRankedData) {
       return []
     }
@@ -128,7 +125,7 @@ export class BrawlQueueWorker {
       })
     )
     // return Active players
-    const activePlayers: any[] = newRankedData.filter((newPlayer) => {
+    let activePlayers: any[] = newRankedData.filter((newPlayer) => {
       const key =
         "brawlhalla_id" in newPlayer
           ? String(newPlayer.brawlhalla_id)
@@ -145,9 +142,38 @@ export class BrawlQueueWorker {
             }
           })?.games || 0)
       )
-    }) as QueueRanked[]
+    }) as Ranked[]
+    // peak personal elo
+    if ("teamname" in newRankedData[0]) {
+      console.log("test")
 
-    return activePlayers.map((x) => ({ ...x, last_active: Date.now() })) as QueueRanked[]
+      activePlayers = (activePlayers as Ranked2V2[]).map((activePlayer) => {
+        console.time(activePlayer.teamname)
+        const peak_one = Math.max(
+          ...(newRankedData as Ranked2V2[])
+            .filter(
+              (x) =>
+                x.brawlhalla_id_one == activePlayer.brawlhalla_id_one ||
+                x.brawlhalla_id_two == activePlayer.brawlhalla_id_one
+            )
+            .map((x) => x.peak_rating)
+        )
+        const peak_two = Math.max(
+          ...(newRankedData as Ranked2V2[])
+            .filter(
+              (x) =>
+                x.brawlhalla_id_one == activePlayer.brawlhalla_id_two ||
+                x.brawlhalla_id_two == activePlayer.brawlhalla_id_two
+            )
+            .map((x) => x.peak_rating)
+        )
+        console.timeEnd(activePlayer.teamname)
+        return { ...activePlayer, peak_one: peak_one, peak_two: peak_two }
+      })
+    }
+    return activePlayers.map((x) => {
+      return { ...x, last_active: Date.now() }
+    }) as Ranked[]
   }
 }
 

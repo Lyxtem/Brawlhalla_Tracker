@@ -41,6 +41,7 @@ export type Ranked1V1 = {
   wins: number
   region: string
   peak_rating: number
+  last_active: number
 }
 
 //=======Ranking 2v2===========
@@ -48,13 +49,16 @@ export type Ranked2V2 = {
   rank: number
   teamname: string
   brawlhalla_id_one: number
+  peak_one: number
   brawlhalla_id_two: number
+  peak_two: number
   rating: number
   tier: string
   wins: number
   games: number
   region: string
   peak_rating: number
+  last_active: number
 }
 //=======Player Ranked===========
 export type PlayerRanked = {
@@ -97,7 +101,7 @@ export type LegendRanked = {
 }
 
 export type RankedRotating = {
-  rank?: number
+  rank: number
   name: string
   brawlhalla_id: number
   rating: number
@@ -106,6 +110,7 @@ export type RankedRotating = {
   wins: number
   games: number
   region: string
+  last_active: number
 }
 
 //=======Player Stats===========
@@ -202,7 +207,7 @@ export type Legend = {
 //=======Other===========
 export type Region = "eu" | "us-e" | "sea" | "brz" | "aus" | "us-w" | "jpn" | "sa" | "me" | "all"
 export type Ranking = "1v1" | "2v2" | "rotating"
-export type Ranked = (Ranked1V1 | Ranked2V2 | RankedRotating) & { last_active?: Date }
+export type Ranked = Ranked1V1 | Ranked2V2 | RankedRotating
 
 export class BrawlhallaAPI {
   private kyInstance: typeof ky
@@ -231,7 +236,7 @@ export class BrawlhallaAPI {
     const data = await this.kyInstance.get(path, { searchParams }).text()
     console.timeEnd(`fetch ${path}`)
 
-    return BrawlhallaAPI.cleanString<T>(data) 
+    return BrawlhallaAPI.cleanString<T>(data)
   }
   public async getLegend(legend: "all" | number = "all") {
     return await this.getBhAPI<LegendStats[]>(`legend/${legend}`)
@@ -248,7 +253,7 @@ export class BrawlhallaAPI {
       const arr: any[] = []
       for (let i = fromPage; i <= toPage; i++) {
         arr.push(await brawlAPI.getRanking(ranking, region, i))
-        await setTimeout(130)
+        await setTimeout(100)
       }
       return arr.flat() as Ranked[]
     } catch (error) {

@@ -22,6 +22,9 @@ const util = {
   isDeveloper(interaction: APIInputInteraction | any) {
     return developers.includes(interaction.user?.id as string) || developers.includes(interaction.member?.user.id)
   },
+  calculateWinrate(wins: number, games: number) {
+    return (games === 0 ? 0 : wins / games) * 100
+  },
 
   escape(str: string) {
     return str.replaceAll("\\u00", "%")
