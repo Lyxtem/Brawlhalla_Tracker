@@ -20,7 +20,7 @@ export const appRouter = router({
     .input(z.object({ ranking: z.custom<Ranking>(), region: z.custom<Region>() }))
     .query(async ({ input }) => {
       const { ranking, region } = input
-      return brawlQueueWorker.getActivePlayers(ranking, region)
+      return brawlQueueWorker.getActivePlayers(ranking, region) || []
     }),
   test: publicProcedure.query(async () => {
     if (process.env.NODE_ENV != "development") return
