@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/trpc/queue_worker?batch=1&input={\"0\":{\"ranking\":\"2v2\",\"region\":\"sea\",\"pageNum\":20}}",
-      "schedule": "0 5 * * *"
+      "schedule": "0 */5 * ? * *"
     }
   ]
 }
