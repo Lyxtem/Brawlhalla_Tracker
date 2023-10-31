@@ -1,4 +1,3 @@
-import fs from "fs"
 import { developers } from "@/discord/client"
 import { APIInputInteraction } from "@/discord/verify-incoming-request"
 import { APIInteractionResponse, InteractionResponseType, MessageFlags } from "discord-api-types/v10"
@@ -23,22 +22,12 @@ const util = {
   isDeveloper(interaction: APIInputInteraction | any) {
     return developers.includes(interaction.user?.id as string) || developers.includes(interaction.member?.user.id)
   },
+  calculateWinrate(wins: number, games: number) {
+    return (games === 0 ? 0 : wins / games) * 100
+  },
 
   escape(str: string) {
     return str.replaceAll("\\u00", "%")
-  },
-  writeFileJson(path: string, content: any) {
-    if (!fs.existsSync(path)) {
-      fs.appendFileSync(path, JSON.stringify(content))
-      return true
-    }
-    fs.writeFileSync(path, JSON.stringify(content))
-    return true
-  },
-  readFileJson<T>(path: string) {
-    const fileContent = fs.readFileSync(path, { encoding: "utf-8" })
-    if (fileContent) return undefined
-    return JSON.parse(fileContent) as T
   },
 }
 
