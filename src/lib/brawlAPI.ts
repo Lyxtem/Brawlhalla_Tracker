@@ -219,7 +219,7 @@ export class BrawlhallaAPI {
       retry: {
         limit: 40,
         delay: (attemptCount) => {
-          return 300
+          return 200
         },
       },
     })

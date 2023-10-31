@@ -1,7 +1,7 @@
 import { appRouter } from "@/server"
 import { httpBatchLink } from "@trpc/client"
 
-function getBaseUrl() {
+export function getBaseUrl() {
   if (typeof window !== "undefined")
     // browser should use relative path
     return ""

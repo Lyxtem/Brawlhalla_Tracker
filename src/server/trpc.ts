@@ -11,7 +11,6 @@ export const router = t.router
 export const publicProcedure = t.procedure
 const isCronAuth = t.middleware(({ ctx, next }) => {
   const { req, resHeaders } = ctx
-  console.log("🚀 ~ file: trpc.ts:13 ~ isCronAuth ~ req:", req)
 
   if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
     throw new TRPCError({ code: "UNAUTHORIZED" })
