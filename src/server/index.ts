@@ -24,7 +24,7 @@ export const appRouter = router({
     }),
   test: publicProcedure.query(async () => {
     if (process.env.NODE_ENV != "development") return
-    return []
+    return
   }),
   prisma: cronProcedure.query(async () => {
     //return await prisma.brawler.create({ data: { brawlhallaId: 1234 } })
