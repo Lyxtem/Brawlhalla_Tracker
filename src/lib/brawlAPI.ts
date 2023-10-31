@@ -253,7 +253,8 @@ export class BrawlhallaAPI {
       const arr: any[] = []
       for (let i = fromPage; i <= toPage; i++) {
         arr.push(await brawlAPI.getRanking(ranking, region, i))
-        await setTimeout(100)
+        // fix request limit
+        await setTimeout(120)
       }
       return arr.flat() as Ranked[]
     } catch (error) {
