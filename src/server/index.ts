@@ -25,6 +25,9 @@ export const appRouter = router({
   test: publicProcedure.query(async () => {
     return brawlQueueWorker.getOldData("1v1", "sea")
   }),
+  health: publicProcedure.query(async () => {
+    return { status: "OK" }
+  }),
   prisma: cronProcedure.query(async () => {
     //return await prisma.brawler.create({ data: { brawlhallaId: 1234 } })
   }),
