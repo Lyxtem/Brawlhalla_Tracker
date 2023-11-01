@@ -5,9 +5,11 @@ export function getBaseUrl() {
   if (typeof window !== "undefined")
     // browser should use relative path
     return ""
-  if (process.env.DOMAIN)
-    // reference for vercel.com
-    return `https://${process.env.DOMAIN}`
+  if (process.env.DOMAIN) return `https://${process.env.DOMAIN}`
+  if (process.env.RENDER_EXTERNAL_HOSTNAME)
+    // reference for render.com
+    return `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
+
   if (process.env.NEXT_PUBLIC_VERCEL_URL)
     // reference for vercel.com
     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
