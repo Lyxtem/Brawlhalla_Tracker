@@ -12,6 +12,10 @@
   "dependencies": {
     "@discordjs/formatters": "^0.3.2",
     "@discordjs/rest": "^2.0.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.16",
+    "@mui/material": "^5.14.16",
     "@prisma/client": "^5.5.2",
     "@tanstack/react-query": "^5.0.5",
     "@tanstack/react-table": "^8.10.7",
