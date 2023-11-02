@@ -6,6 +6,9 @@ export function getBaseUrl() {
     // browser should use relative path
     return ""
   if (process.env.DOMAIN) return `https://${process.env.DOMAIN}`
+  if (process.env.CYCLIC_URL)
+    // reference for cyclic.sh
+    return `https://${process.env.CYCLIC_URL}`
   if (process.env.RENDER_EXTERNAL_HOSTNAME)
     // reference for render.com
     return `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
