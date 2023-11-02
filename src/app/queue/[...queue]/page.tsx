@@ -34,7 +34,7 @@ const ranking2v2Columns: ColumnDef<Ranked2V2, any>[] = [
 
   {
     accessorFn: (x) => [x.teamname.split("+")[0], x.peak_one, x.peak_one != x.peak_rating],
-    header: "(Personal peak elo) Player 1",
+    header: "(Peak elo team) Player 1",
     cell: (x) => {
       const [name, peak_elo, highlight] = x.getValue()
       return (
@@ -47,7 +47,7 @@ const ranking2v2Columns: ColumnDef<Ranked2V2, any>[] = [
 
   {
     accessorFn: (x) => [x.teamname.split("+")[1], x.peak_two, x.peak_two != x.peak_rating],
-    header: "(Personal peak elo) Player 2",
+    header: "(Peak elo team) Player 2",
     cell: (x) => {
       const [name, peak_elo, highlight] = x.getValue()
       return (
@@ -59,7 +59,26 @@ const ranking2v2Columns: ColumnDef<Ranked2V2, any>[] = [
   },
 
   { accessorKey: "games", header: "Games", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorKey: "wins", header: "W/L", cell: (x) => <p>{x.getValue()}</p> },
+  {
+    accessorKey: "wins",
+    header: "W/L",
+    cell: (x) => {
+      const obj = x.row.original
+      return (
+        <div className="w-32">
+          <progress
+            className="progress progress-primary"
+            value={util.calculateWinrate(obj.wins, obj.games).toFixed(0)}
+            max="100"
+          ></progress>
+          <div className="flex justify-between text-xs">
+            <span>{obj.wins}W</span>
+            <span>{obj.games - obj.wins}L</span>
+          </div>
+        </div>
+      )
+    },
+  },
   {
     accessorFn: (x) => util.calculateWinrate(x.wins, x.games).toFixed(2),
     header: "Winrate",
@@ -143,16 +162,15 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
     getSortedRowModel: getSortedRowModel(),
   })
   return (
-    <div className="center mx-52 space-y-2">
+    <div className="center mx-10 space-y-2">
       <div className="">
+        <p>{`-Ayy dog the web being created to find noob easily in dedq`}</p>
         <p>
-          {`This website was created to easily find matches at the appropriate rank without having to wait long in the
-          dead queue.`}
-          <p>
-            {`-Why only SEA is supported? - I'm a SEA player I want to focus the entire API on it, that's why it can
+          {`-"Why only SEA is supported?" - I'm a SEA player I want to focus the entire API on it, that's why it can
             track players in the top 1k quickly. (Support may roll out to other regions in the future if API limits are increased)`}
-          </p>
         </p>
+        <p>{`-"Why is the data sometimes reset and cannot be access?" -I'm using free hosting, free shit offer only that much.`}</p>
+        <p className="text-warning">{`-Currently this is an early access version`}</p>
         <b className="text-primary">Created by Rot4tion</b>
       </div>
 
@@ -187,7 +205,7 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
           <tr>
             {table.getHeaderGroups().map((headerGroup) =>
               headerGroup.headers.map((header) => (
-                <td key={header.id} width={header.getSize()}>
+                <td key={header.id}>
                   {header.column.columnDef.header?.toString()}
                   {header.column.getCanSort() && (
                     <span className="cursor-pointer" onClick={header.column.getToggleSortingHandler()}>
