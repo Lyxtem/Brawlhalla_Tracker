@@ -96,7 +96,11 @@ const ranking2v2Columns: ColumnDef<Ranked2V2, any>[] = [
       )
     },
   },
-  { accessorKey: "last_active", header: "Last Active", cell: (x) => <p>{moment(x.getValue()).fromNow()}</p> },
+  {
+    accessorKey: "last_active",
+    header: "Last Active",
+    cell: (x) => <p>{moment(x.getValue()).fromNow()}</p>,
+  },
 ]
 
 const ranking1v1Columns: ColumnDef<Ranked1V1, any>[] = [
@@ -152,14 +156,15 @@ const brackets = ["1v1", "2v2"]
 const regions = ["sea"]
 
 function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
-  const queueData = trpc.queue.useQuery({ ranking, region })
+  const queueData = trpc.queue.useQuery<any[]>({ ranking, region })
 
-  const columns: any = ranking == "2v2" ? ranking2v2Columns : ranking1v1Columns
+  const columns: any[] = ranking == "2v2" ? ranking2v2Columns : ranking1v1Columns
   const table = useReactTable({
     columns: columns,
     data: queueData.data || [],
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    initialState: { sorting: [{ id: "last_active", desc: true }] },
   })
   return (
     <div className="center mx-10 space-y-2">
