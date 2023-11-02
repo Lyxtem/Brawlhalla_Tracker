@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-base-100">
         <TRPCProvider baseUrl={getBaseUrl()}>{children}</TRPCProvider>
       </body>
     </html>

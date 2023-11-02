@@ -20,84 +20,96 @@ import * as React from "react"
 import { v4 } from "uuid"
 
 export interface QueuePageProps {}
-
-function RowQueue({ ranked }: { ranked: Ranked }) {
-  if (!ranked) return
-  let row: any
-  if ("brawlhalla_id" in ranked) {
-    ranked = ranked as Ranked1V1 | RankedRotating
-    row = (
-      <tr>
-        <td>{ranked.rank}</td>
-        <td>{ranked.tier}</td>
-        <td>{ranked.region}</td>
-        <td>{ranked.name}</td>
-        <td>{ranked.games}</td>
-        <td>
-          {ranked.wins}/{ranked.games - ranked.wins}
-        </td>
-        <td>{util.calculateWinrate(ranked.wins, ranked.games).toFixed(2)}</td>
-        <td>
-          <b className="text-lg font-bold">{ranked.rating}</b>/{ranked.peak_rating}
-        </td>
-        <td>{moment(ranked.last_active).fromNow()}</td>
-      </tr>
-    )
-  } else if ("teamname" in ranked) {
-    ranked = ranked as Ranked2V2
-    const [player1, player2] = ranked.teamname.split("+")
-    row = (
-      <tr>
-        <td>{ranked.rank}</td>
-        <td>{ranked.tier}</td>
-        <td>{ranked.region}</td>
-        <td>
-          <b
-            className={`text-md ${ranked.peak_one != ranked.peak_rating && "text-primary"}`}
-          >{`(${ranked.peak_one}) `}</b>
-          {player1}
-        </td>
-        <td>
-          <b
-            className={`text-md ${ranked.peak_two != ranked.peak_rating && "text-primary"}`}
-          >{`(${ranked.peak_two}) `}</b>
-          {player2}
-        </td>
-        <td>{ranked.games}</td>
-        <td>
-          {ranked.wins}/{ranked.games - ranked.wins}
-        </td>
-        <td>{util.calculateWinrate(ranked.wins, ranked.games).toFixed(2)}</td>
-        <td>
-          <b className="text-lg font-bold">{ranked.rating}</b>/{ranked.peak_rating}
-        </td>
-        <td>{moment(ranked.last_active).fromNow()}</td>
-      </tr>
-    )
-  }
-
-  return row
+function CorehallaStats({ children, brawlhalla_id }: { brawlhalla_id: number } & React.PropsWithChildren) {
+  return (
+    <Link target="_blank" href={`https://corehalla.com/stats/player/${brawlhalla_id}`} className="cursor-pointer">
+      {children}
+    </Link>
+  )
 }
-
 const ranking2v2Columns: ColumnDef<Ranked2V2, any>[] = [
   { accessorKey: "rank", header: "Rank", cell: (x) => <p>{x.getValue()}</p> },
   { accessorKey: "tier", header: "Tier", cell: (x) => <p>{x.getValue()}</p> },
   { accessorKey: "region", header: "Region", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorKey: "peak_one", header: "(Personal peak elo) Player 1", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorKey: "peak_two", header: "(Personal peak elo) Player 2", cell: (x) => <p>{x.getValue()}</p> },
+
+  {
+    accessorFn: (x) => [x.teamname.split("+")[0], x.peak_one, x.peak_one != x.peak_rating],
+    header: "(Personal peak elo) Player 1",
+    cell: (x) => {
+      const [name, peak_elo, highlight] = x.getValue()
+      return (
+        <CorehallaStats brawlhalla_id={x.row.original.brawlhalla_id_one}>
+          <span className={`badge badge-outline ${highlight && "badge-primary"}`}>{peak_elo}</span> {name}
+        </CorehallaStats>
+      )
+    },
+  },
+
+  {
+    accessorFn: (x) => [x.teamname.split("+")[1], x.peak_two, x.peak_two != x.peak_rating],
+    header: "(Personal peak elo) Player 2",
+    cell: (x) => {
+      const [name, peak_elo, highlight] = x.getValue()
+      return (
+        <CorehallaStats brawlhalla_id={x.row.original.brawlhalla_id_two}>
+          <span className={`badge badge-outline ${highlight && "badge-primary"}`}>{peak_elo}</span> {name}
+        </CorehallaStats>
+      )
+    },
+  },
+
   { accessorKey: "games", header: "Games", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorKey: "rank", header: "W/L", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorKey: "rank", header: "Winrate", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorFn: (x) => `${x.rating}/${x.peak_rating}`, header: "Elo", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorKey: "last_active", header: "Last Active", cell: (x) => <p>{x.getValue()}</p> },
+  { accessorKey: "wins", header: "W/L", cell: (x) => <p>{x.getValue()}</p> },
+  {
+    accessorFn: (x) => util.calculateWinrate(x.wins, x.games).toFixed(2),
+    header: "Winrate",
+    cell: (x) => <p>{x.getValue()}</p>,
+  },
+  {
+    accessorFn: (x) => [x.rating, x.peak_rating],
+    header: "Elo",
+    cell: (x) => {
+      const [rating, peak_rating] = x.getValue()
+      return (
+        <p>
+          <b className="text-lg">{rating}</b>/{peak_rating}
+        </p>
+      )
+    },
+  },
+  { accessorKey: "last_active", header: "Last Active", cell: (x) => <p>{moment(x.getValue()).fromNow()}</p> },
 ]
+
 const ranking1v1Columns: ColumnDef<Ranked1V1, any>[] = [
   { accessorKey: "rank", header: "Rank", cell: (x) => <p>{x.getValue()}</p> },
   { accessorKey: "tier", header: "Tier", cell: (x) => <p>{x.getValue()}</p> },
   { accessorKey: "region", header: "Region", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorKey: "name", header: "Name", cell: (x) => <p>{x.getValue()}</p> },
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: (x) => <CorehallaStats brawlhalla_id={x.row.original.brawlhalla_id}>{x.getValue()}</CorehallaStats>,
+  },
   { accessorKey: "games", header: "Games", cell: (x) => <p>{x.getValue()}</p> },
-  { accessorFn: (x) => `${x.wins}/${x.games - x.wins}`, header: "W/L", cell: (x) => <p>{x.getValue()}</p> },
+  {
+    accessorKey: "wins",
+    header: "W/L",
+    cell: (x) => {
+      const obj = x.row.original
+      return (
+        <div className="w-32">
+          <progress
+            className="progress progress-primary"
+            value={util.calculateWinrate(obj.wins, obj.games).toFixed(0)}
+            max="100"
+          ></progress>
+          <div className="flex justify-between text-xs">
+            <span>{obj.wins}W</span>
+            <span>{obj.games - obj.wins}L</span>
+          </div>
+        </div>
+      )
+    },
+  },
   {
     accessorFn: (x) => util.calculateWinrate(x.wins, x.games).toFixed(2),
     header: "Winrate",
@@ -110,7 +122,7 @@ const ranking1v1Columns: ColumnDef<Ranked1V1, any>[] = [
       const [rating, peak_rating] = x.getValue()
       return (
         <p>
-          <b>{rating}</b>/{peak_rating}
+          <b className="text-lg">{rating}</b>/{peak_rating}
         </p>
       )
     },
@@ -119,6 +131,7 @@ const ranking1v1Columns: ColumnDef<Ranked1V1, any>[] = [
 ]
 const brackets = ["1v1", "2v2"]
 const regions = ["sea"]
+
 function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
   const queueData = trpc.queue.useQuery({ ranking, region })
 
@@ -130,7 +143,15 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
     getSortedRowModel: getSortedRowModel(),
   })
   return (
-    <div className="center">
+    <div className="center mx-52 space-y-2">
+      <div className="">
+        <p>
+          This website was created with the goal of easily finding matches at the appropriate rank without having to
+          wait long in the dead queue.
+        </p>
+        <b className="text-primary">Created by Rot4tion</b>
+      </div>
+
       <div className="">
         <div className="flex justify-center space-x-2">
           {brackets &&
@@ -158,7 +179,6 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
         </div>
       </div>
       <table className={`table mx-auto`}>
-        {/* head */}
         <thead>
           <tr>
             {table.getHeaderGroups().map((headerGroup) =>

@@ -20,7 +20,8 @@ export const appRouter = router({
     .input(z.object({ ranking: z.custom<Ranking>(), region: z.custom<Region>() }))
     .query(async ({ input }) => {
       const { ranking, region } = input
-      return brawlQueueWorker.getActivePlayers(ranking, region) || []
+      await brawlQueueWorker.getActivePlayers(ranking, region) 
+      return []
     }),
   test: publicProcedure.query(async () => {
     return brawlQueueWorker.getOldData("1v1", "sea")
