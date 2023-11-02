@@ -12,16 +12,15 @@ export const appRouter = router({
     .input(z.object({ ranking: z.custom<Ranking>(), region: z.custom<Region>(), pageNum: z.number() }))
     .query(async ({ input }) => {
       const { ranking, region, pageNum } = input
-
-      return await brawlQueueWorker.updateQueue(ranking, region, pageNum)
+      await brawlQueueWorker.updateQueue(ranking, region, pageNum)
+      return []
     }),
   queue: publicProcedure
 
     .input(z.object({ ranking: z.custom<Ranking>(), region: z.custom<Region>() }))
     .query(async ({ input }) => {
       const { ranking, region } = input
-      await brawlQueueWorker.getActivePlayers(ranking, region) 
-      return []
+      return brawlQueueWorker.getActivePlayers(ranking, region) || []
     }),
   test: publicProcedure.query(async () => {
     return brawlQueueWorker.getOldData("1v1", "sea")

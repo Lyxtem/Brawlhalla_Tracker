@@ -146,8 +146,12 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
     <div className="center mx-52 space-y-2">
       <div className="">
         <p>
-          This website was created with the goal of easily finding matches at the appropriate rank without having to
-          wait long in the dead queue.
+          {`This website was created to easily find matches at the appropriate rank without having to wait long in the
+          dead queue.`}
+          <p>
+            {`-Why only SEA is supported? - I'm a SEA player I want to focus the entire API on it, that's why it can
+            track players in the top 1k quickly. (Support may roll out to other regions in the future if API limits are increased)`}
+          </p>
         </p>
         <b className="text-primary">Created by Rot4tion</b>
       </div>
