@@ -179,7 +179,7 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
     }
   )
   const [activeTime, setActiveTime] = React.useState<Dictionary<ActiveBrawler[]>>()
-
+  const [isLocalTime, setIsLocalTime] = React.useState(true)
   const columns: any[] = ranking == "2v2" ? ranking2v2Columns : ranking1v1Columns
   const table = useReactTable({
     columns: columns,
@@ -190,9 +190,13 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
   })
   React.useEffect(() => {
     if (activeData.data) {
-      setActiveTime(_.groupBy(activeData.data, (x) => new Date(x.last_active).getHours()))
+      setActiveTime(
+        _.groupBy(activeData.data, (x) =>
+          isLocalTime ? new Date(x.last_active).getHours() : new Date(x.last_active).getUTCHours()
+        )
+      )
     }
-  }, [activeData.data])
+  }, [activeData.data, isLocalTime])
   return (
     <div className="center mx-10 space-y-2">
       <div>
@@ -204,6 +208,15 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
         <p>{`-"Why is the data sometimes reset and cannot be access?" -I'm using free hosting, free shit offer only that much.`}</p>
         <p className="text-warning">{`-Currently this is an early access version`}</p>
         <b className="text-primary">Created by Rot4tion</b>
+      </div>
+      <div>
+        <div className="label-text">{isLocalTime ? "Local time" : "UTC time"}</div>
+        <input
+          type="checkbox"
+          className="toggle toggle-primary"
+          defaultChecked={isLocalTime}
+          onChange={(e) => setIsLocalTime(e.target.checked)}
+        />
       </div>
       <div className="flex">
         <div className="flex-1">
