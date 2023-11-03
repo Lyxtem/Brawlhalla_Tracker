@@ -2,7 +2,15 @@ import { setTimeout } from "timers/promises"
 import axios, { AxiosInstance } from "axios"
 import ky from "ky"
 import util from "./util"
-
+export type ActiveBrawlerUncheckedCreateInput = {
+  id?: string
+  brawlhalla_id: number
+  ranking: string
+  rating: number
+  region: string
+  name: string
+  last_active: number
+}
 //=======Clan===========
 export type Clan = {
   clan_id: number

@@ -4,6 +4,7 @@ import { trpc } from "@/app/_trpc/client"
 import { Ranked, Ranked1V1, Ranked2V2, RankedRotating, Ranking, Region } from "@/lib/brawlAPI"
 import util from "@/lib/util"
 import { ArrowDownward, ArrowUpward, Height, SwapVert } from "@mui/icons-material"
+import { ActiveBrawler } from "@prisma/client"
 import {
   ColumnDef,
   createColumnHelper,
@@ -160,8 +161,24 @@ function CorehallaStats({ children, brawlhalla_id }: { brawlhalla_id: number } &
   )
 }
 function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
-  const queueData = trpc.queue.useQuery<any[]>({ ranking, region })
-  const [activeTime, setActiveTime] = React.useState<Dictionary<{ brawlhalla_id: number; time: number }[]>>()
+  const queueData = trpc.queue.useQuery<any[]>(
+    { ranking, region },
+    {
+      //@ts-ignore
+      staleTime: 30 * 1000,
+    }
+  )
+  const activeData = trpc.active.useQuery<ActiveBrawler[]>(
+    { ranking, region },
+    {
+      //@ts-ignore
+      staleTime: 24 * 60 * 60 * 1000,
+      refetchInterval: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    }
+  )
+  const [activeTime, setActiveTime] = React.useState<Dictionary<ActiveBrawler[]>>()
 
   const columns: any[] = ranking == "2v2" ? ranking2v2Columns : ranking1v1Columns
   const table = useReactTable({
@@ -172,15 +189,10 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
     initialState: { sorting: [{ id: "last_active", desc: true }] },
   })
   React.useEffect(() => {
-    setActiveTime(
-      _.groupBy(
-        queueData.data?.map(({ brawlhalla_id, last_active }: Ranked1V1) => {
-          return { brawlhalla_id, time: new Date(last_active).getHours() }
-        }),
-        (x) => x.time
-      )
-    )
-  }, [queueData.data])
+    if (activeData.data) {
+      setActiveTime(_.groupBy(activeData.data, (x) => new Date(x.last_active).getHours()))
+    }
+  }, [activeData.data])
   return (
     <div className="center mx-10 space-y-2">
       <div>
