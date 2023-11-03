@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from "path"
-import brawlAPI, { BrawlhallaAPI, Ranked, Ranked2V2, Ranking, Region } from "./brawlAPI"
+import prisma from "../../prisma/client"
+import brawlAPI, { BrawlhallaAPI, Ranked, Ranked1V1, Ranked2V2, Ranking, Region } from "./brawlAPI"
 
 export class BrawlQueueWorker {
   private brawlAPI: BrawlhallaAPI
@@ -68,6 +69,42 @@ export class BrawlQueueWorker {
     this.setOldData(ranking, region, newRankedData)
 
     const activePlayers = this.trackPlayersInRank(newRankedData, oldRankedData)
+
+    if (activePlayers) {
+      console.time("add activePlayers to db")
+      const activeBrawlers = activePlayers
+        .map((x) => {
+          const brawlers: any[] = []
+          if ("brawlhalla_id" in x) {
+            const { brawlhalla_id, name, rating, region, last_active } = x as Ranked1V1
+            return brawlers.push({ brawlhalla_id, ranking, name, rating, region, last_active })
+          }
+          if ("teamname" in x) {
+            x = x as Ranked2V2
+            const [p1Name, p2Name] = x.teamname.split("+")
+            brawlers.push({
+              brawlhalla_id: x.brawlhalla_id_one,
+              name: p1Name,
+              ranking,
+              rating: x.peak_one,
+              region: x.region,
+              last_active: x.last_active,
+            })
+            brawlers.push({
+              brawlhalla_id: x.brawlhalla_id_two,
+              ranking,
+              name: p2Name,
+              rating: x.peak_two,
+              region: x.region,
+              last_active: x.last_active,
+            })
+          }
+          return brawlers
+        })
+        .flat()
+      await prisma.activeBrawler.createMany({ data: activeBrawlers })
+      console.timeEnd("add activePlayers to db")
+    }
 
     if (activePlayers) {
       const oldActivePlayers = this.getActivePlayers(ranking, region)

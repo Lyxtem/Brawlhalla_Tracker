@@ -12,7 +12,10 @@ export const publicProcedure = t.procedure
 const isCronAuth = t.middleware(({ ctx, next }) => {
   const { req, resHeaders } = ctx
 
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (
+    process.env.NODE_ENV != "development" &&
+    req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
     throw new TRPCError({ code: "UNAUTHORIZED" })
   }
   return next()

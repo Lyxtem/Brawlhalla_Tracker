@@ -3,7 +3,7 @@
 import { trpc } from "@/app/_trpc/client"
 import { Ranked, Ranked1V1, Ranked2V2, RankedRotating, Ranking, Region } from "@/lib/brawlAPI"
 import util from "@/lib/util"
-import { ArrowDownward, ArrowUpward, SwapVert } from "@mui/icons-material"
+import { ArrowDownward, ArrowUpward, Height, SwapVert } from "@mui/icons-material"
 import {
   ColumnDef,
   createColumnHelper,
@@ -13,20 +13,17 @@ import {
   SortDirection,
   useReactTable,
 } from "@tanstack/react-table"
+import "chart.js/auto"
+import _, { Dictionary } from "lodash"
 import moment from "moment"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import * as React from "react"
+import { Line } from "react-chartjs-2"
 import { v4 } from "uuid"
 
 export interface QueuePageProps {}
-function CorehallaStats({ children, brawlhalla_id }: { brawlhalla_id: number } & React.PropsWithChildren) {
-  return (
-    <Link target="_blank" href={`https://corehalla.com/stats/player/${brawlhalla_id}`} className="cursor-pointer">
-      {children}
-    </Link>
-  )
-}
+
 const ranking2v2Columns: ColumnDef<Ranked2V2, any>[] = [
   { accessorKey: "rank", header: "Rank", cell: (x) => <p>{x.getValue()}</p> },
   { accessorKey: "tier", header: "Tier", cell: (x) => <p>{x.getValue()}</p> },
@@ -155,8 +152,16 @@ const ranking1v1Columns: ColumnDef<Ranked1V1, any>[] = [
 const brackets = ["1v1", "2v2"]
 const regions = ["sea"]
 
+function CorehallaStats({ children, brawlhalla_id }: { brawlhalla_id: number } & React.PropsWithChildren) {
+  return (
+    <Link target="_blank" href={`https://corehalla.com/stats/player/${brawlhalla_id}`} className="cursor-pointer">
+      {children}
+    </Link>
+  )
+}
 function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
   const queueData = trpc.queue.useQuery<any[]>({ ranking, region })
+  const [activeTime, setActiveTime] = React.useState<Dictionary<{ brawlhalla_id: number; time: number }[]>>()
 
   const columns: any[] = ranking == "2v2" ? ranking2v2Columns : ranking1v1Columns
   const table = useReactTable({
@@ -166,9 +171,19 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
     getSortedRowModel: getSortedRowModel(),
     initialState: { sorting: [{ id: "last_active", desc: true }] },
   })
+  React.useEffect(() => {
+    setActiveTime(
+      _.groupBy(
+        queueData.data?.map(({ brawlhalla_id, last_active }: Ranked1V1) => {
+          return { brawlhalla_id, time: new Date(last_active).getHours() }
+        }),
+        (x) => x.time
+      )
+    )
+  }, [queueData.data])
   return (
     <div className="center mx-10 space-y-2">
-      <div className="">
+      <div>
         <p>{`-Ayy dog the web being created to find noob easily in dedq`}</p>
         <p>
           {`-"Why only SEA is supported?" - I'm a SEA player I want to focus the entire API on it, that's why it can
@@ -178,7 +193,30 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
         <p className="text-warning">{`-Currently this is an early access version`}</p>
         <b className="text-primary">Created by Rot4tion</b>
       </div>
-
+      <div className="flex">
+        <div className="flex-1">
+          {activeTime && (
+            <Line
+              data={{
+                labels: Object.keys(activeTime).map((k) => `${k}h`),
+                datasets: [
+                  {
+                    label: "Active players",
+                    data: Object.values(activeTime).map((x) => x.length),
+                    tension: 0.4,
+                    borderColor: "#6419e6",
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { grid: { display: false } }, y: { grid: { display: false } } },
+              }}
+            ></Line>
+          )}
+        </div>
+      </div>
       <div className="">
         <div className="flex justify-center space-x-2">
           {brackets &&

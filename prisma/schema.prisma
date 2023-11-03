@@ -10,7 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Brawler {
   id               String        @id @default(auto()) @map("_id") @db.ObjectId
   brawlhallaId     Int           @unique @map("brawlhalla_id")
@@ -27,4 +26,14 @@ model BrawlerAlias {
   brawler      Brawler  @relation(fields: [brawlerID], references: [id])
   mainAlias    String
   otherAliases String[] @unique
+}
+
+model ActiveBrawler {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  brawlhalla_id Int
+  ranking       String
+  rating        Int
+  region        String
+  name          String
+  last_active   DateTime
 }
