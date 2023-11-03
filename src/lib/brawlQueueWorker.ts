@@ -181,10 +181,7 @@ export class BrawlQueueWorker {
     }) as Ranked[]
     // peak personal elo
     if ("teamname" in newRankedData[0]) {
-      console.log("test")
-
       activePlayers = (activePlayers as Ranked2V2[]).map((activePlayer) => {
-        console.time(activePlayer.teamname)
         const peak_one = Math.max(
           ...(newRankedData as Ranked2V2[])
             .filter(
@@ -203,7 +200,7 @@ export class BrawlQueueWorker {
             )
             .map((x) => x.peak_rating)
         )
-        console.timeEnd(activePlayer.teamname)
+
         return { ...activePlayer, peak_one: peak_one, peak_two: peak_two }
       })
     }
