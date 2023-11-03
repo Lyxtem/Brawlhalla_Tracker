@@ -29,11 +29,11 @@ model BrawlerAlias {
 }
 
 model ActiveBrawler {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
   brawlhalla_id Int
   ranking       String
   rating        Int
   region        String
   name          String
-  last_active   DateTime
+  last_active   Int
 }

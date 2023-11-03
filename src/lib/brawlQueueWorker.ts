@@ -77,9 +77,8 @@ export class BrawlQueueWorker {
           const brawlers: any[] = []
           if ("brawlhalla_id" in x) {
             const { brawlhalla_id, name, rating, region, last_active } = x as Ranked1V1
-            return brawlers.push({ brawlhalla_id, ranking, name, rating, region, last_active })
-          }
-          if ("teamname" in x) {
+            brawlers.push({ brawlhalla_id, ranking, name, rating, region, last_active })
+          } else if ("teamname" in x) {
             x = x as Ranked2V2
             const [p1Name, p2Name] = x.teamname.split("+")
             brawlers.push({
@@ -102,6 +101,7 @@ export class BrawlQueueWorker {
           return brawlers
         })
         .flat()
+      console.log("🚀 ~ file: brawlQueueWorker.ts:104 ~ BrawlQueueWorker ~ updateQueue ~ activeBrawlers:", activeBrawlers)
       await prisma.activeBrawler.createMany({ data: activeBrawlers })
       console.timeEnd("add activePlayers to db")
     }
