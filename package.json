@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-discord-bot-template",
+  "name": "brawlhalla-tracker",
   "version": "1.0.0",
   "scripts": {
     "dev": "next",

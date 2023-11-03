@@ -4,9 +4,9 @@ import TRPCProvider from "@/app/_trpc/Provider"
 import { getBaseUrl } from "./_trpc/server"
 
 export const metadata: Metadata = {
-  title: "NextBot — Next.js Discord Bot Template",
+  title: "Brawlhalla tracker",
   description:
-    "A Discord bot template built with Next.js that runs in the edge runtime. Lightning-fast responses, zero cold starts, no servers to manage.",
+    "Brawlhalla Tracker is a web-based project designed to keep tabs on Brawlhalla players currently engaged in ranked matches. Its primary goal is to display this information on a website and provide support display on Discord through a bot.",
   authors: [{ name: "Rot4tion" }],
 }
 
