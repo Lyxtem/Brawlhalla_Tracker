@@ -101,7 +101,6 @@ export class BrawlQueueWorker {
           return brawlers
         })
         .flat()
-      console.log("🚀 ~ file: brawlQueueWorker.ts:104 ~ BrawlQueueWorker ~ updateQueue ~ activeBrawlers:", activeBrawlers)
       await prisma.activeBrawler.createMany({ data: activeBrawlers })
       console.timeEnd("add activePlayers to db")
     }
