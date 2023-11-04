@@ -1,6 +1,7 @@
 "use client"
 
 import { trpc } from "@/app/_trpc/client"
+import { QueueCharts } from "@/components/queue-charts"
 import { Ranked, Ranked1V1, Ranked2V2, RankedRotating, Ranking, Region } from "@/lib/brawlAPI"
 import util from "@/lib/util"
 import { ArrowDownward, ArrowUpward, Height, SwapVert } from "@mui/icons-material"
@@ -15,12 +16,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import "chart.js/auto"
+import { ActiveElement, elements } from "chart.js/auto"
 import _, { Dictionary } from "lodash"
 import moment from "moment"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import * as React from "react"
-import { Line } from "react-chartjs-2"
+import { getElementAtEvent, Line } from "react-chartjs-2"
 import { v4 } from "uuid"
 
 export interface QueuePageProps {}
@@ -160,6 +162,7 @@ function CorehallaStats({ children, brawlhalla_id }: { brawlhalla_id: number } &
     </Link>
   )
 }
+
 function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
   const queueData = trpc.queue.useQuery<any[]>(
     { ranking, region },
@@ -168,17 +171,6 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
       staleTime: 30 * 1000,
     }
   )
-  const activeData = trpc.active.useQuery<ActiveBrawler[]>(
-    { ranking, region },
-    {
-      //@ts-ignore
-      staleTime: 24 * 60 * 60 * 1000,
-      refetchInterval: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    }
-  )
-  const [activeTime, setActiveTime] = React.useState<Dictionary<ActiveBrawler[]>>()
 
   const columns: any[] = ranking == "2v2" ? ranking2v2Columns : ranking1v1Columns
   const table = useReactTable({
@@ -188,11 +180,7 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
     getSortedRowModel: getSortedRowModel(),
     initialState: { sorting: [{ id: "last_active", desc: true }] },
   })
-  React.useEffect(() => {
-    if (activeData.data) {
-      setActiveTime(_.groupBy(activeData.data, (x) => new Date(x.last_active).getHours()))
-    }
-  }, [activeData.data])
+
   return (
     <div className="center mx-10 space-y-2">
       <div>
@@ -205,30 +193,7 @@ function TableQueue({ ranking, region }: { ranking: Ranking; region: Region }) {
         <p className="text-warning">{`-Currently this is an early access version`}</p>
         <b className="text-primary">Created by Rot4tion</b>
       </div>
-      <div className="flex">
-        <div className="flex-1">
-          {activeTime && (
-            <Line
-              data={{
-                labels: Object.keys(activeTime).map((k) => `${k}h`),
-                datasets: [
-                  {
-                    label: "Active players",
-                    data: Object.values(activeTime).map((x) => x.length),
-                    tension: 0.4,
-                    borderColor: "#6419e6",
-                  },
-                ],
-              }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { x: { grid: { display: false } }, y: { grid: { display: false } } },
-              }}
-            ></Line>
-          )}
-        </div>
-      </div>
+      <QueueCharts ranking={ranking} region={region}></QueueCharts>
       <div className="">
         <div className="flex justify-center space-x-2">
           {brackets &&

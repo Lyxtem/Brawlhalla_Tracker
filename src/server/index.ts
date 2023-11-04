@@ -1,4 +1,3 @@
-import { setTimeout } from "timers/promises"
 import brawlAPI, { Ranked, Ranking, Region } from "@/lib/brawlAPI"
 import brawlQueueWorker from "@/lib/brawlQueueWorker"
 import { getActiveBrawlers } from "@/lib/utils/cacheActiveBrawlers"
@@ -29,7 +28,7 @@ export const appRouter = router({
     .query(async ({ input }) => {
       const { ranking, region } = input
 
-      // get data before 48h from now
+      // get data before 24h from now
       return await getActiveBrawlers(ranking, region)
     }),
   test: publicProcedure.query(async () => {
